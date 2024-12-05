@@ -7,7 +7,7 @@ rules = [tuple(map(int, l.split('|'))) for l in lines if '|' in l]
 updates = [list(map(int, l.split(','))) for l in lines if ',' in l]
 
 # Utilities
-kf = cmp_to_key(lambda n1, n2: -1 if (n1, n2) in rules else 1)
+kf = cmp_to_key(lambda n1, n2: -1 if (n1, n2) in rules else (0 if n1 == n2 else 1))
 corrected_updates = [sorted(u, key=kf) for u in updates]
 
 # Part 1
