@@ -1,26 +1,29 @@
+from typing import Tuple, Union
+
 with open('./input/day_06.txt') as f:
-    grid = [list(l.strip()) for l in f.read().splitlines()]
+    G = {(x, y): v for y, row in enumerate(f.read().splitlines()) for x, v in enumerate(row.strip())}
+start = min(coord for coord, v in G.items() if v == '^')
 
-# Parse
-direction_map = {(0, -1): (1, 0), (1, 0): (0, 1), (0, 1): (-1, 0), (-1, 0): (0, -1)}
-guard_direction, stone_locs = (0, -1), set()
-rows, cols = len(grid), len(grid[0])
-for i, row in enumerate(grid):
-    for j, value in enumerate(row):
-        if value == '#':
-            stone_locs.add((j, i))
-        elif value == '^':
-            guard_loc, guard_next_loc = (j, i), (j, i-1)
+def traverse(obstacle: Tuple[int, int] = None) -> Union[None, int]:
+    direction_map = {(0, -1): (1, 0), (1, 0): (0, 1), (0, 1): (-1, 0), (-1, 0): (0, -1)}
+    g = {**G, obstacle: '#'} if obstacle else G
+    pos, direction, visited = start, (0, -1), set()
+    while pos in g:
+        next_pos = tuple(map(sum, zip(pos, direction)))
+        facing_wall = (g.get(next_pos) == '#')
+        if facing_wall and (pos, direction) in visited:
+            return None  # We faced this wall before so a loop is detected
+        visited.add((pos, direction))
+        if facing_wall:
+            direction = direction_map[direction]
+        else:
+            pos = next_pos
+    return len(set(v[0] for v in visited))
 
-# Part 1
-visited = set()
-while 0 <= guard_next_loc[0] < cols and 0 <= guard_next_loc[1] < rows:
-    visited.add(guard_loc)
-    guard_next_loc = (guard_loc[0] +  guard_direction[0], guard_loc[1] + guard_direction[1])
-    if guard_next_loc in stone_locs:
-        guard_direction = direction_map[guard_direction]
-        guard_next_loc = (guard_loc[0] +  guard_direction[0], guard_loc[1] + guard_direction[1])
-    guard_loc = guard_next_loc
-        
-part1_answer = len(visited)
+# Part 1: Traverse 1 time with original settings 
+part1_answer = traverse(None)
 print(f'Part 1: {part1_answer}')
+
+# Part 2: Brute Force adding 1 obstacle at a time            
+part2_answer = sum([1 for (x, y) in G if G[(x,y)] not in ('#', '^') and traverse(obstacle=(x, y)) is None])
+print(f'Part 2: {part2_answer}')
