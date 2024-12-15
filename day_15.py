@@ -10,16 +10,19 @@ def run(g, moves):
     rx, ry = [(x, y) for (x, y), v in g.items() if v == '@'][0]
     for move in moves:
         x_adj, y_adj = D[move]
+        # Find the whole cluster which may need to be moved (BFS)
         visited = set()
         q = Queue()
         q.put((rx, ry))
         while not q.empty():
             x, y = q.get()
             visited.add((x, y))
+            # See if '[]' pair needs to be explored
             if g[(x, y)] in ('[', ']'):
                 x_next, y_next = (x + 1 if g[(x, y)] == '[' else x - 1), y
                 if (x_next, y_next) not in visited and g[(x_next, y_next)] in ('O', '[', ']'):
                     q.put((x_next, y_next))
+            # See if the robot moving direction has another box needed to be checked
             x_next, y_next = x + x_adj, y + y_adj
             if g[(x_next, y_next)] in ('O', '[', ']'):
                 if (x_next, y_next) not in visited and g[(x_next, y_next)] in ('O', '[', ']'):
