@@ -16,20 +16,13 @@ for y in range(E[1] + 1):
 
 def run(part1=True):
     g = G.copy()
-    if part1:
-        # Shortest path length after 1024 rocks
-        for rock in ROCKS[:1024]:
-            for edge in list(g.in_edges(rock)) + list(g.out_edges(rock)):
-                g.remove_edge(*edge)
-        return nx.shortest_path_length(g, S, E)
-    else:
-        # Coordinates of the rock which finally blocks the path
-        for i, rock in enumerate(ROCKS):
-            for edge in list(g.in_edges(rock)) + list(g.out_edges(rock)):
-                g.remove_edge(*edge)
-            try:
-                nx.shortest_path_length(g, S, E)
-            except nx.exception.NetworkXNoPath:
+    for i, rock in enumerate(ROCKS):
+        for edge in list(g.in_edges(rock)) + list(g.out_edges(rock)):
+            g.remove_edge(*edge)
+        if part1 and i == 1024 - 1:
+            return nx.shortest_path_length(g, S, E)
+        else:
+            if not nx.has_path(g, S, E):
                 return rock
 
 # Part 1
